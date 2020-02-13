@@ -1,3 +1,9 @@
+const GAMEHEIGHT = 480;
+const GAMEWIDTH = 720;
+
+let canvas = document.getElementById("gameScreen");
+let ctx = canvas.getContext("2d");
+
 class Platform 
 {
    constructor()
@@ -34,13 +40,9 @@ class Player
     }
 }
 
-const GAMEHEIGHT = 480;
-const GAMEWIDTH = 720;
-let canvas = document.getElementById("gameScreen");
-let ctx = canvas.getContext("2d");
+
+
 let platform = new Platform();
 let player = new Player();
-platform.draw(ctx);
+
 player.draw(ctx);
-
-

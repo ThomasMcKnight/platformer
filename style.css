@@ -1,3 +1,7 @@
 .gameScreen {
     border: 2px solid black;
 }
+
+:root {
+    background-color: grey;
+}
