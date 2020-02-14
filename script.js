@@ -28,6 +28,8 @@ class Player
     {
         this.height = 30;
         this.width = 30;
+        this.velocity = 50;
+        this.limit = 720 - this.width;
         this.position = 
         {
             x: 300,
@@ -44,5 +46,40 @@ class Player
 
 let platform = new Platform();
 let player = new Player();
+let fpsDisplay = document.getElementById("fpsDisplay");
 
-player.draw(ctx);
+function draw()
+{
+    player.draw(ctx);
+    platform.draw(ctx);
+    fpsDisplay.textContent = fps + ' FPS';
+}
+
+function update(timePassed)
+{
+    player.position.x += player.velocity * timePassed;
+
+    if(player.position.x <= 0 || player.position.x >= 720 - player.width)
+    {
+        player.velocity = -player.velocity;
+    }
+
+}
+
+let lastFrameTime = 0;
+let fps = 0;
+
+function gameLoop(timeStamp) 
+{
+    ctx.clearRect(0, 0, GAMEWIDTH, GAMEHEIGHT);
+
+    let timePassed = (timeStamp - lastFrameTime) / 1000;
+    lastFrameTime = timeStamp;
+
+    fps = Math.round(1 / timePassed);
+
+    update(timePassed);
+    draw();
+    requestAnimationFrame(gameLoop);
+}
+requestAnimationFrame(gameLoop);
