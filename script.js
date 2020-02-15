@@ -1,5 +1,5 @@
-const GAMEHEIGHT = 480;
-const GAMEWIDTH = 720;
+const GAMEHEIGHT = 600;
+const GAMEWIDTH = 800;
 
 let canvas = document.getElementById("gameScreen");
 let ctx = canvas.getContext("2d");
@@ -13,7 +13,7 @@ class Platform
        this.position = 
        {
            x: 500,
-           y: 300
+           y: 500
        };
    }
    draw(ctx)
@@ -29,7 +29,7 @@ class Player
         this.height = 30;
         this.width = 30;
         this.velocity = 50;
-        this.limit = 720 - this.width;
+        this.limit = GAMEWIDTH - this.width;
         this.position = 
         {
             x: 300,
@@ -42,11 +42,10 @@ class Player
     }
 }
 
-
-
 let platform = new Platform();
 let player = new Player();
 let fpsDisplay = document.getElementById("fpsDisplay");
+
 
 function draw()
 {
