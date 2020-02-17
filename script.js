@@ -4,6 +4,8 @@ const GAMEWIDTH = 800;
 let canvas = document.getElementById("gameScreen");
 let ctx = canvas.getContext("2d");
 var inputHandler;
+let fpsDisplay = document.getElementById("fpsDisplay");
+const GRAVITY = 27;
 
 //Class for the platform objects
 class Platform 
@@ -32,7 +34,8 @@ class Player
         this.height = 30;
         this.width = 30;
         this.limit = GAMEWIDTH - this.width;
-        this.jumping = false;
+        this.isJumping = false;
+        this.isFalling = false;
         this.velocity = 
         {
             x: 0,
@@ -79,8 +82,6 @@ inputHandler =
 
 let platform = new Platform();
 let player = new Player();
-let fpsDisplay = document.getElementById("fpsDisplay");
-const GRAVITY = 27;
 
 //Main draw function
 function draw()
@@ -93,11 +94,26 @@ function draw()
 //Main update function
 function update(deltaTime)
 {
-    console.log("Player position y: " + player.position.y);
-    if(inputHandler.jump && player.jumping == false) //If inputting Jump
+    player.position.y += player.velocity.y * deltaTime; //Vertical velocity
+    player.position.x += player.velocity.x * deltaTime; //Horizontal velocity
+    player.velocity.x *= 0.9; //Friction
+    player.velocity.y += GRAVITY; //Gravity
+
+    checkCollision();
+    controller();
+
+}
+
+function controller()
+{
+    if(inputHandler.jump && player.isJumping == false) //If inputting Jump
     {
         player.velocity.y -= 1000;
-        player.jumping = true;
+        player.isJumping = true;
+    }
+    if(player.isJumping == true && player.velocity.y > 0) //Check if player is descending
+    {
+        player.isFalling = true;
     }
 
     if(inputHandler.left) //If inputting Left
@@ -109,12 +125,10 @@ function update(deltaTime)
     {
         player.velocity.x += 75; 
     }
+}
 
-    player.position.y += player.velocity.y * deltaTime; //Vertical velocity
-    player.position.x += player.velocity.x * deltaTime; //Horizontal velocity
-    player.velocity.x *= 0.9; //Friction
-    player.velocity.y += GRAVITY; //Gravity
-
+function checkCollision()
+{
     if(player.position.x <= 0) //If player is offscreen to left
     {
         player.position.x = 0;
@@ -129,7 +143,18 @@ function update(deltaTime)
     {
         player.position.y = GAMEHEIGHT - player.height;
         player.velocity.y = 0;
-        player.jumping = false;
+        player.isJumping = false;
+        player.isFalling = false;
+    }
+
+    if(player.position.y >= platform.position.y - player.height && //If player is on platform --- Will be converted to for loop when multiple platforms are created
+        platform.position.x <= player.position.x + ((2/3) * player.width) && 
+        platform.position.x + platform.width >= player.position.x + ((2/3) * player.width) &&
+        player.isFalling == true)
+    {
+        player.position.y = platform.position.y - player.height;
+        player.velocity.y = 0;
+        player.isJumping = false;
     }
 }
 
