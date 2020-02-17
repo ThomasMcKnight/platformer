@@ -5,6 +5,7 @@ let canvas = document.getElementById("gameScreen");
 let ctx = canvas.getContext("2d");
 var inputHandler;
 
+//Class for the platform objects
 class Platform 
 {
    constructor()
@@ -23,6 +24,7 @@ class Platform
    }
 }
 
+//Class for the player object
 class Player
 {
     constructor()
@@ -48,6 +50,7 @@ class Player
     }
 }
 
+//Object for the input handler/controller
 inputHandler = 
 {
     jump: false,
@@ -72,16 +75,14 @@ inputHandler =
                 break;
         }
     }
-
 };
-
 
 let platform = new Platform();
 let player = new Player();
 let fpsDisplay = document.getElementById("fpsDisplay");
-const GRAVITY = 20;
+const GRAVITY = 27;
 
-
+//Main draw function
 function draw()
 {
     player.draw(ctx);
@@ -89,51 +90,47 @@ function draw()
     fpsDisplay.textContent = fps + ' FPS';
 }
 
-function update(timePassed)
+//Main update function
+function update(deltaTime)
 {
-
-    if(inputHandler.jump && player.jumping == false)
+    console.log("Player position y: " + player.position.y);
+    if(inputHandler.jump && player.jumping == false) //If inputting Jump
     {
         player.velocity.y -= 1000;
         player.jumping = true;
     }
 
-    if(inputHandler.left)
+    if(inputHandler.left) //If inputting Left
     {
         player.velocity.x -= 75;
     }
 
-    if(inputHandler.right)
+    if(inputHandler.right) //If inputting Right
     {
         player.velocity.x += 75; 
     }
 
+    player.position.y += player.velocity.y * deltaTime; //Vertical velocity
+    player.position.x += player.velocity.x * deltaTime; //Horizontal velocity
+    player.velocity.x *= 0.9; //Friction
+    player.velocity.y += GRAVITY; //Gravity
 
-
-    player.position.y += player.velocity.y * timePassed;
-    player.position.x += player.velocity.x * timePassed;
-    player.velocity.x *= 0.9; 
-    //player.velocity.y *= 0.9;
-    player.velocity.y += GRAVITY;
-
-    if(player.position.x <= 0) 
+    if(player.position.x <= 0) //If player is offscreen to left
     {
         player.position.x = 0;
     }
 
-    if(player.position.x >= GAMEWIDTH - player.width)
+    if(player.position.x >= GAMEWIDTH - player.width) //If player is offscreen to right
     {
         player.position.x = GAMEWIDTH - player.width;
     }
 
-    if(player.position.y >= GAMEHEIGHT - player.height)
+    if(player.position.y >= GAMEHEIGHT - player.height) //If player is on ground
     {
         player.position.y = GAMEHEIGHT - player.height;
         player.velocity.y = 0;
         player.jumping = false;
     }
-    
-
 }
 
 let lastFrameTime = 0;
@@ -141,14 +138,14 @@ let fps = 0;
 
 function gameLoop(timeStamp) 
 {
-    ctx.clearRect(0, 0, GAMEWIDTH, GAMEHEIGHT);
+    ctx.clearRect(0, 0, GAMEWIDTH, GAMEHEIGHT); //Clear screen
 
-    let timePassed = (timeStamp - lastFrameTime) / 1000;
+    let deltaTime = (timeStamp - lastFrameTime) / 1000;
     lastFrameTime = timeStamp;
 
-    fps = Math.round(1 / timePassed);
+    fps = Math.round(1 / deltaTime); //FPS counter
 
-    update(timePassed);
+    update(deltaTime);
     draw();
     requestAnimationFrame(gameLoop);
 }
