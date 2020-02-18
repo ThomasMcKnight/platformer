@@ -80,29 +80,19 @@ inputHandler =
     }
 };
 
-let platform = new Platform();
+let platforms = [];
 let player = new Player();
 
-//Main draw function
-function draw()
+for (let i = 0; i < 5; i++)
 {
-    player.draw(ctx);
-    platform.draw(ctx);
-    fpsDisplay.textContent = fps + ' FPS';
+    platforms[i] = new Platform();
 }
 
-//Main update function
-function update(deltaTime)
-{
-    player.position.y += player.velocity.y * deltaTime; //Vertical velocity
-    player.position.x += player.velocity.x * deltaTime; //Horizontal velocity
-    player.velocity.x *= 0.9; //Friction
-    player.velocity.y += GRAVITY; //Gravity
-
-    checkCollision();
-    controller();
-
-}
+platforms[1].position.x = 200;
+platforms[2].position.x = 250;
+platforms[2].position.y = 350;
+platforms[3].position.x = 450;
+platforms[3].position.y = 380;
 
 function controller()
 {
@@ -147,15 +137,45 @@ function checkCollision()
         player.isFalling = false;
     }
 
-    if(player.position.y >= platform.position.y - player.height && //If player is on platform --- Will be converted to for loop when multiple platforms are created
-        platform.position.x <= player.position.x + ((2/3) * player.width) && 
-        platform.position.x + platform.width >= player.position.x + ((2/3) * player.width) &&
-        player.isFalling == true)
+    for(let i = 0; i < 5; i++)
     {
-        player.position.y = platform.position.y - player.height;
-        player.velocity.y = 0;
-        player.isJumping = false;
+        if(player.position.y >= platforms[i].position.y - player.height && //If player is on platform --- Will be converted to for loop when multiple platforms are created
+            platforms[i].position.y >= player.position.y + 20 && 
+            platforms[i].position.x <= player.position.x + ((2/3) * player.width) && 
+            platforms[i].position.x + platforms[i].width >= player.position.x + ((2/3) * player.width) &&
+            player.isFalling)
+        {
+            player.position.y = platforms[i].position.y - player.height;
+            player.velocity.y = 0;
+            player.isJumping = false;
+        }
+
     }
+}
+
+//Main draw function
+function draw()
+{
+    player.draw(ctx);
+
+    for(let i = 0; i < 5; i++)
+    {
+        platforms[i].draw(ctx);
+    }
+
+    fpsDisplay.textContent = fps + ' FPS';
+}
+
+//Main update function
+function update(deltaTime)
+{
+    player.position.y += player.velocity.y * deltaTime; //Vertical velocity
+    player.position.x += player.velocity.x * deltaTime; //Horizontal velocity
+    player.velocity.x *= 0.9; //Friction
+    player.velocity.y += GRAVITY; //Gravity
+
+    checkCollision();
+    controller();
 }
 
 let lastFrameTime = 0;
