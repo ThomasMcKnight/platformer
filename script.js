@@ -4,8 +4,7 @@ const GAMEWIDTH = 800;
 let canvas = document.getElementById("gameScreen");
 let ctx = canvas.getContext("2d");
 var inputHandler;
-let fpsDisplay = document.getElementById("fpsDisplay");
-const GRAVITY = 27;
+
 
 //Class for the platform objects
 class Platform 
@@ -146,18 +145,27 @@ function checkCollision()
     for(let i = 0; i < numberOfPlatforms; i++)
     {
         if(player.position.y >= platforms[i].position.y - player.height && //If player is on platform --- Will be converted to for loop when multiple platforms are created
-            platforms[i].position.y >= player.position.y + 20 && 
-            platforms[i].position.x <= player.position.x + ((2/3) * player.width) && 
-            platforms[i].position.x + platforms[i].width >= player.position.x + ((2/3) * player.width) &&
+            platforms[i].position.y >= player.position.y + 20 && //Second bound
+            platforms[i].position.x <= player.position.x + ((2/3) * player.width) && //Left edge
+            platforms[i].position.x + platforms[i].width >= player.position.x + ((2/3) * player.width) && //Right Edge
             player.isFalling)
         {
             player.position.y = platforms[i].position.y - player.height;
             player.velocity.y = 0;
             player.isJumping = false;
+            player.isFalling = false;
         }
-
+        if(player.velocity.y == 0 && player.position.y + player.height < GAMEHEIGHT)
+        {
+            player.position.y = platforms[i].position.y - player.height;
+            player.velocity.y = 0;
+            player.isJumping = false;
+            break;
+        }
     }
 }
+
+let fpsDisplay = document.getElementById("fpsDisplay");
 
 //Main draw function
 function draw()
@@ -171,6 +179,8 @@ function draw()
 
     fpsDisplay.textContent = fps + ' FPS';
 }
+
+const GRAVITY = 27;
 
 //Main update function
 function update(deltaTime)
