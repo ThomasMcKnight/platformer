@@ -81,9 +81,10 @@ inputHandler =
 };
 
 let platforms = [];
+let numberOfPlatforms = 5;
 let player = new Player();
 
-for (let i = 0; i < 5; i++)
+for (let i = 0; i < numberOfPlatforms; i++)
 {
     platforms[i] = new Platform();
 }
@@ -137,7 +138,12 @@ function checkCollision()
         player.isFalling = false;
     }
 
-    for(let i = 0; i < 5; i++)
+    if(player.velocity.y > 0 && !player.isJumping)
+    {
+        player.isJumping = true;
+    }
+
+    for(let i = 0; i < numberOfPlatforms; i++)
     {
         if(player.position.y >= platforms[i].position.y - player.height && //If player is on platform --- Will be converted to for loop when multiple platforms are created
             platforms[i].position.y >= player.position.y + 20 && 
