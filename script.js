@@ -61,7 +61,7 @@ class Projectile
         this.velocity = 
         {
             x: 0,
-            y: 10
+            y: 300
         };
 
     }
@@ -191,7 +191,7 @@ function checkCollision()
 let projectiles = [];
 let numberOfProjectiles = 0;
 
-function spawnProjectile(position)
+function spawnProjectile(position) //Function that spawns projectile at the top of screen
 {
     let projectile = new Projectile(position);
     numberOfProjectiles = projectiles.push(projectile);
@@ -220,6 +220,7 @@ function draw()
 
 const GRAVITY = 27;
 let projectileFrameCount = 0;
+let totalTime = 0;
 
 //Main update function
 function update(deltaTime)
@@ -231,15 +232,17 @@ function update(deltaTime)
 
     for(let i = 0; i < numberOfProjectiles; i++)
     {
-        projectiles[i].yPosition += player.velocity.y * deltaTime; //Vertical velocity
+        projectiles[i].yPosition += projectiles[i].velocity.y * deltaTime; //Vertical velocity
     }
 
-    projectileFrameCount++;
-    if(projectileFrameCount % 1000 == 0)
+    //Need to figure out how to make this consistent across different hardware
+    totalTime += deltaTime;
+    if(totalTime > 1)
     {
-        console.log("Projectile");
-        spawnProjectile(50);
+        spawnProjectile(Math.floor((Math.random() * 720) + 1));
+        totalTime = 0;
     }
+
 
     checkCollision();
     controller();
