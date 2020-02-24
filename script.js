@@ -3,8 +3,6 @@ const GAMEWIDTH = 800;
 
 let canvas = document.getElementById("gameScreen");
 let ctx = canvas.getContext("2d");
-var inputHandler;
-
 
 //Class for the platform objects
 class Platform 
@@ -32,7 +30,6 @@ class Player
     {
         this.height = 30;
         this.width = 30;
-        this.limit = GAMEWIDTH - this.width;
         this.isJumping = false;
         this.isFalling = false;
         this.velocity = 
@@ -51,6 +48,30 @@ class Player
         ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
     }
 }
+
+//Class for projectiles
+class Projectile
+{
+    constructor(position)
+    {
+        this.height = 20
+        this.width = 20;
+        this.xPosition = position;
+        this.yPosition = 0;
+        this.velocity = 
+        {
+            x: 0,
+            y: 10
+        };
+
+    }
+    draw(ctx)
+    {
+        ctx.fillRect(this.xPosition, this.yPosition, this.width, this.height);
+    }
+}
+
+var inputHandler;
 
 //Object for the input handler/controller
 inputHandler = 
@@ -94,6 +115,7 @@ platforms[2].position.y = 350;
 platforms[3].position.x = 450;
 platforms[3].position.y = 380;
 
+//Function that controls movement based on input
 function controller()
 {
     if(inputHandler.jump && player.isJumping == false) //If inputting Jump
@@ -117,6 +139,7 @@ function controller()
     }
 }
 
+//Function that checks collision and handles jumping through platforms
 function checkCollision()
 {
     if(player.position.x <= 0) //If player is offscreen to left
@@ -165,6 +188,15 @@ function checkCollision()
     }
 }
 
+let projectiles = [];
+let numberOfProjectiles = 0;
+
+function spawnProjectile(position)
+{
+    let projectile = new Projectile(position);
+    numberOfProjectiles = projectiles.push(projectile);
+}
+
 let fpsDisplay = document.getElementById("fpsDisplay");
 
 //Main draw function
@@ -172,15 +204,22 @@ function draw()
 {
     player.draw(ctx);
 
-    for(let i = 0; i < 5; i++)
+    for(let i = 0; i < numberOfPlatforms; i++)
     {
         platforms[i].draw(ctx);
     }
+
+    for(let i = 0; i < numberOfProjectiles; i++)
+    {
+        projectiles[i].draw(ctx);
+    }
+    
 
     fpsDisplay.textContent = fps + ' FPS';
 }
 
 const GRAVITY = 27;
+let projectileFrameCount = 0;
 
 //Main update function
 function update(deltaTime)
@@ -189,6 +228,18 @@ function update(deltaTime)
     player.position.x += player.velocity.x * deltaTime; //Horizontal velocity
     player.velocity.x *= 0.9; //Friction
     player.velocity.y += GRAVITY; //Gravity
+
+    for(let i = 0; i < numberOfProjectiles; i++)
+    {
+        projectiles[i].yPosition += player.velocity.y * deltaTime; //Vertical velocity
+    }
+
+    projectileFrameCount++;
+    if(projectileFrameCount % 1000 == 0)
+    {
+        console.log("Projectile");
+        spawnProjectile(50);
+    }
 
     checkCollision();
     controller();
