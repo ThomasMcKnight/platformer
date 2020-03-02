@@ -3,6 +3,7 @@ const GAMEWIDTH = 800;
 
 let canvas = document.getElementById("gameScreen");
 let ctx = canvas.getContext("2d");
+let GAMESTATE = 0;
 
 //Class for the platform objects
 class Platform 
@@ -67,7 +68,11 @@ class Projectile
     }
     draw(ctx)
     {
-        ctx.fillRect(this.xPosition, this.yPosition, this.width, this.height);
+
+        ctx.beginPath();
+        ctx.arc(this.xPosition, this.yPosition, 10, 0, 2 * Math.PI);
+        ctx.stroke();
+       // ctx.fillRect(this.xPosition, this.yPosition, this.width, this.height);
     }
 }
 
@@ -115,6 +120,15 @@ platforms[2].position.y = 350;
 platforms[3].position.x = 450;
 platforms[3].position.y = 380;
 
+let projectiles = [];
+let numberOfProjectiles = 0;
+
+function spawnProjectile(position) //Function that spawns projectile at the top of screen
+{
+    let projectile = new Projectile(position);
+    numberOfProjectiles = projectiles.push(projectile);
+}
+
 //Function that controls movement based on input
 function controller()
 {
@@ -160,14 +174,14 @@ function checkCollision()
         player.isFalling = false;
     }
 
-    if(player.velocity.y > 0 && !player.isJumping)
+    if(player.velocity.y > 0 && !player.isJumping) //Checking if player is jumping
     {
         player.isJumping = true;
     }
 
-    for(let i = 0; i < numberOfPlatforms; i++)
+    for(let i = 0; i < numberOfPlatforms; i++) //Checking platform collision
     {
-        if(player.position.y >= platforms[i].position.y - player.height && //If player is on platform --- Will be converted to for loop when multiple platforms are created
+        if(player.position.y >= platforms[i].position.y - player.height && //If player is on platform 
             platforms[i].position.y >= player.position.y + 20 && //Second bound
             platforms[i].position.x <= player.position.x + ((2/3) * player.width) && //Left edge
             platforms[i].position.x + platforms[i].width >= player.position.x + ((2/3) * player.width) && //Right Edge
@@ -186,15 +200,18 @@ function checkCollision()
             break;
         }
     }
-}
 
-let projectiles = [];
-let numberOfProjectiles = 0;
-
-function spawnProjectile(position) //Function that spawns projectile at the top of screen
-{
-    let projectile = new Projectile(position);
-    numberOfProjectiles = projectiles.push(projectile);
+    for(let i =0; i < numberOfProjectiles; i++) //Checking projectile collision
+    {
+        if(player.position.y <= projectiles[i].yPosition + projectiles[i].height &&
+            player.position.y + player.height >= projectiles[i].yPosition &&
+            player.position.x <= projectiles[i].xPosition + projectiles[i].width &&
+            player.position.x + player.width >= projectiles[i].xPosition)
+        {
+            console.log("hit");
+            GAMESTATE = 1;
+        }
+    }
 }
 
 let fpsDisplay = document.getElementById("fpsDisplay");
@@ -213,7 +230,6 @@ function draw()
     {
         projectiles[i].draw(ctx);
     }
-    
 
     fpsDisplay.textContent = fps + ' FPS';
 }
@@ -235,7 +251,7 @@ function update(deltaTime)
         projectiles[i].yPosition += projectiles[i].velocity.y * deltaTime; //Vertical velocity
     }
 
-    //Need to figure out how to make this consistent across different hardware
+    //Spawning projectiles every second
     totalTime += deltaTime;
     if(totalTime > 1)
     {
