@@ -21,6 +21,7 @@ class Platform
    draw(ctx)
    {
         ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+        ctx.fillStyle = "black";
    }
 }
 
@@ -47,6 +48,7 @@ class Player
     draw(ctx)
     {
         ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+        ctx.fillStyle = "red";
     }
 }
 
@@ -72,7 +74,7 @@ class Projectile
         ctx.beginPath();
         ctx.arc(this.xPosition, this.yPosition, 10, 0, 2 * Math.PI);
         ctx.stroke();
-       // ctx.fillRect(this.xPosition, this.yPosition, this.width, this.height);
+        ctx.fillStyle = "black";
     }
 }
 
@@ -101,6 +103,9 @@ inputHandler =
             case 68: //D
                 inputHandler.right = input;
                 break;
+            
+            case 82: //R
+                inputHandler.reset = input;
         }
     }
 };
@@ -137,6 +142,15 @@ function controller()
         player.velocity.y -= 1000;
         player.isJumping = true;
     }
+
+    if(inputHandler.reset && GAMESTATE == 1) //Restarting game after game over
+    {
+        console.log("reset");
+        projectiles.length = 0;
+        numberOfProjectiles = 0;
+        GAMESTATE = 0;
+    }
+
     if(player.isJumping == true && player.velocity.y > 0) //Check if player is descending
     {
         player.isFalling = true;
@@ -231,6 +245,16 @@ function draw()
         projectiles[i].draw(ctx);
     }
 
+    if (GAMESTATE == 1) {
+        ctx.rect(0, 0, GAMEWIDTH, GAMEHEIGHT);
+        ctx.fillStyle = "rgba(0,0,0,1)";
+        ctx.fill();
+        ctx.font = "30px Arial";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.fillText("Loser! Press R to restart", GAMEWIDTH / 2, GAMEHEIGHT / 2);
+    }
+
     fpsDisplay.textContent = fps + ' FPS';
 }
 
@@ -245,6 +269,7 @@ function update(deltaTime)
     player.position.x += player.velocity.x * deltaTime; //Horizontal velocity
     player.velocity.x *= 0.9; //Friction
     player.velocity.y += GRAVITY; //Gravity
+
 
     for(let i = 0; i < numberOfProjectiles; i++)
     {
