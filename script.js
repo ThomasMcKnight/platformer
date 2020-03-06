@@ -48,7 +48,7 @@ class Player
     draw(ctx)
     {
         ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
-        ctx.fillStyle = "red";
+        ctx.fillStyle = "black";
     }
 }
 
@@ -57,8 +57,7 @@ class Projectile
 {
     constructor(position)
     {
-        this.height = 20
-        this.width = 20;
+        this.radius = 10;
         this.xPosition = position;
         this.yPosition = 0;
         this.velocity = 
@@ -72,9 +71,31 @@ class Projectile
     {
 
         ctx.beginPath();
-        ctx.arc(this.xPosition, this.yPosition, 10, 0, 2 * Math.PI);
+        ctx.arc(this.xPosition, this.yPosition, this.radius, 0, 2 * Math.PI);
         ctx.stroke();
-        ctx.fillStyle = "black";
+        ctx.fillStyle = "white";
+    }
+}
+
+//Class for coins
+class Coin
+{
+    constructor(xPositionCoin, yPositionCoin)
+    {
+        this.height = 10;
+        this.width = 10;
+        this.position = 
+        {
+            x: xPositionCoin,
+            y: yPositionCoin
+        };
+    }
+    draw(ctx)
+    {
+        ctx.beginPath();
+        ctx.arc(this.position.x, this.position.y, 10, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.fillStyle = "yellow";
     }
 }
 
@@ -132,6 +153,18 @@ function spawnProjectile(position) //Function that spawns projectile at the top 
 {
     let projectile = new Projectile(position);
     numberOfProjectiles = projectiles.push(projectile);
+}
+
+let xPositionCoin = 0;
+let yPositionCoin = 0;
+
+let coin = new Coin(xPositionCoin, yPositionCoin);
+
+function getCoinLocation()
+{
+    let randomPlat = Math.floor(Math.random() * numberOfPlatforms);
+    xPositionCoin = platforms[randomPlat].position.x;
+    yPositionCoin = platforms[randomPlat].position.y;
 }
 
 //Function that controls movement based on input
@@ -217,9 +250,9 @@ function checkCollision()
 
     for(let i =0; i < numberOfProjectiles; i++) //Checking projectile collision
     {
-        if(player.position.y <= projectiles[i].yPosition + projectiles[i].height &&
+        if(player.position.y <= projectiles[i].yPosition + (projectiles[i].radius) * 2 &&
             player.position.y + player.height >= projectiles[i].yPosition &&
-            player.position.x <= projectiles[i].xPosition + projectiles[i].width &&
+            player.position.x <= projectiles[i].xPosition + (projectiles[i].radius) * 2 &&
             player.position.x + player.width >= projectiles[i].xPosition)
         {
             console.log("hit");
@@ -234,6 +267,7 @@ let fpsDisplay = document.getElementById("fpsDisplay");
 function draw()
 {
     player.draw(ctx);
+    coin.draw(ctx);
 
     for(let i = 0; i < numberOfPlatforms; i++)
     {
@@ -284,7 +318,7 @@ function update(deltaTime)
         totalTime = 0;
     }
 
-
+    getCoinLocation();
     checkCollision();
     controller();
 }
